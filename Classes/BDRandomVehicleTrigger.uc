@@ -58,45 +58,45 @@ simulated function PostBeginPlay()
 //		OnKilledEvent = RandomOKEvents[ int( FRand() * RandomOKEvents.length ) ].MyOKEvents;
 
      if ( Tag != '' && RandomTags.length > 0 )
-               Tag = RandomTags[ int( FRand() * RandomTags.length ) ].mytags;
+               Tag = RandomTags[ Rand(RandomTags.length ) ].mytags;
 
 	else
 
 	return;
 }
-	
-	
 
-
-
- 
-simulated event Trigger( Actor Other, Pawn EventInstigator )
+simulated event Trigger(Actor Other, Pawn EventInstigator)
 {
-
-     local  Vehicle         tempVehicle;
+	//local Vehicle tmpVehicle;
  
-     if ( !EventInstigator.IsA('KFHumanPawn') && bPlayerControl )
-          return;
+	//log("EventInstigator"@EventInstigator);
+	
+	//if(EventInstigator == None)
+	//	return;
  
-     if ( VehicleCount >= MaxVehicleCount )
-          return;
-
-
-     if ( tempvehicle != none )
-	return;
+    if(!EventInstigator.IsA('KFHumanPawn') && bPlayerControl)
+		return;
+		
+	//log("VehicleCount >= MaxVehicleCount"@VehicleCount@MaxVehicleCount);
  
+    if(VehicleCount >= MaxVehicleCount)
+        return;
 
-    if (!bdisabled )
-   {		
-     bWaiting = true;
-     bPreSpawn = true;
-     FactoryTime = Level.TimeSeconds - PreSpawnTime;
-     }
-     else
-     {
-	return;
-   }	
+    //if(tmpVehicle != none)
+	//	return;
+		
+	//log("bdisabled"@bdisabled);
 
+    if(!bdisabled)
+	{		
+		bWaiting = true;
+		bPreSpawn = true;
+		FactoryTime = Level.TimeSeconds - PreSpawnTime;
+    }
+    else
+    {
+		return;
+	}	
 }
  
 simulated function SpawnItNow()
@@ -106,6 +106,7 @@ simulated function SpawnItNow()
      local  Pawn              P;
 //     local vector TrySpawnPoint;
 
+	log("trying to spawn");
  
      bBlocked = false;
  
@@ -136,6 +137,7 @@ if ( shouldCreate() )
      {
           CreatedVehicle = spawn(VehicleClass, , , Location, Rotation);
  	  
+		log("Spawn car");
 		
           if ( CreatedVehicle != None )
 
@@ -162,7 +164,7 @@ event VehicleDestroyed(Vehicle V)
      Super.VehicleDestroyed(V);
 	 
 	 	 if (  RandomOKEvents.length > 0 )
-		OnKilledEvent = RandomOKEvents[ int( FRand() * RandomOKEvents.length ) ].MyOKEvents;
+		OnKilledEvent = RandomOKEvents[ Rand(RandomOKEvents.length ) ].MyOKEvents;
 
 	  	    MaxVehicleCount++;
                     BDGameType(Level.Game).NotifyRemoveCar();
@@ -173,12 +175,14 @@ event VehicleDestroyed(Vehicle V)
  
 simulated function Tick(float DeltaTime)
 {
-
+	log("tick");
      if ( bWaiting )
      {
+		log("bwaiting");
  
           if ( ( VehicleCount < MaxVehicleCount ) )
                     {
+						log("VehicleCount < MaxVehicleCount");
  //		    if ( Tag != '' && RandomTags.length > 0 )
  ///             		 Tag = RandomTags[ int( FRand() * RandomTags.length ) ].mytags;
 
@@ -244,6 +248,7 @@ function bool PlayerCanSeePoint(vector TestLocation)
 function bool shouldCreate() {
 
    if (BDGameType(Level.Game).TooManyCars(none)){
+		log("Too many cars");
        return False;
 	}
 	Return True;

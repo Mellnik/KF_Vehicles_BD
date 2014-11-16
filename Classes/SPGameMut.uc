@@ -2,26 +2,25 @@ class SPGameMut extends mutator config (KF_Vehicles_BD);
 
 var globalconfig int MaxCarLimit, MinCarLimit;
 
-/*function bool CheckReplacement(Actor Other, out byte bSuperRelevant) {
-    if (Other.IsA('KFHumanPawn'))
-        KFHumanPawn(Other).RequiredEquipment[4] = "KF_Vehicles_BD.BDWelder";
-
-    return true;
-}*/
-
 static function FillPlayInfo(PlayInfo PlayInfo) 
 {
-	//local string option;
-	//local int i;
 	Super.FillPlayInfo(PlayInfo);  // Always begin with calling parent
  
-	PlayInfo.AddSetting("Max Vehicles", "MaxCarLimit", "Max Vehicles", 0, 0, "Text", "2;1:12",);
-	PlayInfo.AddSetting("Min Vehicles", "MinCarLimit", "Min Vehicles", 0, 0, "Text", "1;1:8",);
+	PlayInfo.AddSetting("Vehicles", "MaxCarLimit", "Max Vehicles", 0, 0, "Text", "2;1:12",,,True);
+	PlayInfo.AddSetting("Vehicles", "MinCarLimit", "Min Vehicles", 0, 0, "Text", "1;1:8",,,True);
+}
+
+function PostNetBeginPlay()
+{
+	if(BDgametype(level.game) == none)
+	{		
+		level.servertravel("?game=KF_Vehicles_BD.BDgametype", true);
+	}
 }
 
 function postBeginPlay()
 {
-	local string currentmap;
+/*	local string currentmap;
 
 	if(level.game == None)
 		return;
@@ -31,10 +30,16 @@ function postBeginPlay()
 		currentmap = GetURLMap(false);
 
 		level.servertravel("?game=KF_Vehicles_BD.BDgametype", true);
+	}*/
+	
+	if ( Role != ROLE_Authority )
+        return;
+	
+	if(level.game != none && BDgametype(level.game) != none)
+	{
+		BDgametype(level.game).MaxCarLimit = MaxCarLimit;
+		BDgametype(level.game).MinCarLimit = MinCarLimit;
 	}
-
-	BDgametype(level.game).MaxCarLimit = MaxCarLimit;
-	BDgametype(level.game).MinCarLimit = MinCarLimit;
 }
 
 static event string GetDescriptionText(string PropName)
@@ -44,6 +49,7 @@ static event string GetDescriptionText(string PropName)
 		case "MaxCarLimit":		return "Maximum amount of cars that can appears on map.";
 		case "MinCarLimit":		return "Minimum amount of cars that can appears on map.";
 	}
+	return Super.GetDescriptionText(PropName);
 }
 
 defaultproperties

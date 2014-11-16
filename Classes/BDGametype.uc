@@ -1,8 +1,8 @@
 Class BDGametype extends KFGameType;
 
-var int   MaxCarLimit;
+var config int   MaxCarLimit;
 var	  int	NumCars;
-var int   MinCarLimit;
+var config int   MinCarLimit;
 
 struct OKEvents
 {
@@ -43,9 +43,11 @@ function NotifyRemoveCar(){
 function bool TooManyCars(Controller CarToRemove){
    local int CurrentInPlayLimit;
 
-
+	
+   
      CurrentInPlayLimit = MaxCarLimit;
 
+	 //log("TooManyCars"@NumCars@CurrentInPlayLimit);
 
    if (NumCars >= CurrentInPlayLimit){ return true; }
    return false;
@@ -56,7 +58,9 @@ function bool NotEnoughCars(){
    local int CurrentInPlayLimit;
 
 
-     CurrentInPlayLimit = MinCarLimit;
+       CurrentInPlayLimit = MinCarLimit;
+	   
+	  //log("NotEnoughCars"@NumCars@CurrentInPlayLimit);
 
 
    if (NumCars < CurrentInPlayLimit){ return true; }
@@ -73,7 +77,7 @@ event Tick(float DeltaTime)
 	If (NotEnoughCars())
 	{
 	 	if (  RandomOKEvents.length > 0 )
-		Event = RandomOKEvents[ int( FRand() * RandomOKEvents.length ) ].MyOKEvents;
+		Event = RandomOKEvents[ Rand(RandomOKEvents.length ) ].MyOKEvents;
 		TriggerEvent( Event, self, None );
 	}
 }
@@ -89,9 +93,6 @@ function AddDefaultInventory( pawn PlayerPawn )
     PlayerPawn.giveweapon("KFMod.frag");
     PlayerPawn.giveweapon("KFMod.frag");
     SetPlayerDefaults(PlayerPawn);
-
-
-
 }
 
 defaultproperties
@@ -129,4 +130,5 @@ defaultproperties
      RandomOKEvents(28)=(MyOKevents="OK28")
      RandomOKEvents(29)=(MyOKevents="OK29")
      HUDType="KF_Vehicles_BD.BDKFHUD"
+	 GameName="Vehicles Game Type"
 }
