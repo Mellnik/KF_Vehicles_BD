@@ -11,11 +11,9 @@ var				float	HealAttemptDelay;
 var 			float 	LastHealMessageTime;
 var 			float 	HealMessageDelay;
 var localized   string  NoHealTargetMessage;
-var             BDWheeledVehicle    CachedHealee;
+//var             Actor    CachedHealee;
 var() float             tracerange;
-
-
-
+var int maxAdditionalDamage;
 
 
 function PlayFiring()
@@ -35,8 +33,6 @@ function PlayFiring()
 	FireCount++;
 }
 
-
-
 simulated Function Timer()
 {
 	local Actor HitActor;
@@ -44,11 +40,9 @@ simulated Function Timer()
 	local rotator PointRot;
 	local int MyDamage;
 
-
-
 	If( !KFWeapon(Weapon).bNoHit )
 	{
-		MyDamage = damageConst + Rand(MaxAdditionalDamage);
+		MyDamage = 10 + Rand(MaxAdditionalDamage);
 
 		if ( KFPlayerReplicationInfo(Instigator.PlayerReplicationInfo) != none && KFPlayerReplicationInfo(Instigator.PlayerReplicationInfo).ClientVeteranSkill != none )
 		{
@@ -84,40 +78,32 @@ simulated Function Timer()
             Weapon.bBlockHitPointTraces = Weapon.default.bBlockHitPointTraces;
 		}
 
-		
+		LastHitActor = KFDoorMover(HitActor);
+		LastHitActorB = BDWheeledVehicle(HitActor);
 
-			LastHitActor = KFDoorMover(HitActor);
-			LastHitActorB = BDWheeledVehicle(HitActor);
-
-			if( LastHitActor!=none && Level.NetMode!=NM_Client )
-			{
+		if( LastHitActor!=none && Level.NetMode!=NM_Client )
+		{
 			AdjustedLocation = Hitlocation;
 			AdjustedLocation.Z = (Hitlocation.Z - 0.15 * Instigator.collisionheight);
 
 			HitActor.TakeDamage(MyDamage, Instigator, HitLocation , vector(PointRot),hitDamageClass);
 			Spawn(class'KFWelderHitEffect',,, AdjustedLocation, rotator(HitLocation - StartTrace));
-			}
+		}
 			
-			if( LastHitActorB!=none && Level.NetMode!=NM_Client )
-			{
-
+		if( LastHitActorB!=none && Level.NetMode!=NM_Client )
+		{
+			//Instigator.ReceiveLocalizedMessage(class'BDMessageGas', 1);
+			//if(BDWheeledVehicle(LastHitActorB).Health < 150)
+			//	LastHitActorB.Health += (LastHitActorB.Health+1);
+				
+			AdjustedLocation = Hitlocation;
+			AdjustedLocation.Z = (Hitlocation.Z - 0.15 * Instigator.collisionheight);
 			
-//						Instigator.ReceiveLocalizedMessage(class'BDMessageGas', 1);
-//						LastHitActorB.Health+=(LastHitActorB.Health+1);
-						AdjustedLocation = Hitlocation;
-						AdjustedLocation.Z = (Hitlocation.Z - 0.15 * Instigator.collisionheight);
-						HitActor.TakeDamage(0, Instigator, HitLocation , vector(PointRot),hitDamageClass);
-						Spawn(class'KFWelderHitEffect',,, AdjustedLocation, rotator(HitLocation - StartTrace));			
-
-
-					
-			}
-
+			HitActor.TakeDamage(0, Instigator, HitLocation , vector(PointRot),hitDamageClass);
+			Spawn(class'KFWelderHitEffect',,, AdjustedLocation, rotator(HitLocation - StartTrace));	
+		}		
 	}
-			
-
 }
-
 
 
 function BDWheeledVehicle GetHealee()
@@ -176,27 +162,24 @@ function bool AllowFire()
 
 		return false;
 	}
-
-	if(WeldTarget.bDisallowWeld)
-	{
-		if( PlayerController(Instigator.controller)!=None )
-			PlayerController(Instigator.controller).ClientMessage(CantWeldTargetMessage, 'CriticalEvent');
-
-	return false;
-	}
 	
-	if(RepairTarget!=none && (RepairTarget.health >= RepairTarget.HealthMax))
+	if(RepairTarget != none && RepairTarget.health >= RepairTarget.HealthMax)
 	{
 		if( PlayerController(Instigator.controller)!=None )
 			PlayerController(Instigator.controller).ClientMessage(NoHealTargetMessage, 'CriticalEvent');
 	
-	return false;
+		return false;
 	}
-	
-    return Weapon.AmmoAmount(ThisModeNum) >= AmmoPerFire ;
 
-		
+	if(WeldTarget != None && WeldTarget.bDisallowWeld)
+	{
+		if( PlayerController(Instigator.controller)!=None )
+			PlayerController(Instigator.controller).ClientMessage(CantWeldTargetMessage, 'CriticalEvent');
+
+		return false;
+	}	
 	
+    return Weapon.AmmoAmount(ThisModeNum) >= AmmoPerFire;	
 }
 
 defaultproperties
@@ -207,8 +190,7 @@ defaultproperties
      HealMessageDelay=10.000000
      NoHealTargetMessage="You do not need to repair this vehicle!"
      TraceRange=50.000000
-     damageConst=10
-     maxAdditionalDamage=0
+     //maxAdditionalDamage=0
      DamagedelayMin=0.100000
      DamagedelayMax=0.100000
      hitDamageClass=Class'KFMod.DamTypeWelder'
