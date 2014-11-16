@@ -1,0 +1,33 @@
+class BDFuel_xFlow extends xEmitter;
+
+defaultproperties
+{
+     mRegenPause=True
+     mStartParticles=0
+     mMaxParticles=80
+     mLifeRange(0)=2.000000
+     mLifeRange(1)=2.000000
+     mRegenRange(0)=40.000000
+     mRegenRange(1)=40.000000
+     mSpawnVecB=(Z=0.080000)
+     mSpeedRange(0)=60.000000
+     mSpeedRange(1)=60.000000
+     mMassRange(0)=0.300000
+     mMassRange(1)=0.300000
+     mOwnerVelocityFactor=100.000000
+     mRandOrient=True
+     mSpinRange(0)=5.000000
+     mSpinRange(1)=10.000000
+     mSizeRange(0)=2.000000
+     mSizeRange(1)=4.000000
+     mGrowthRate=20.000000
+     mColorRange(0)=(B=0,G=102,A=0)
+     mRandTextures=True
+     mNumTileColumns=4
+     mNumTileRows=4
+     mAttraction=100.000000
+     bForceAffected=True
+     bOnlyDrawIfAttached=True
+     Skins(0)=Texture'BDVehicle_T.Fuel.FuelSpill'
+     Style=STY_Subtractive
+}
