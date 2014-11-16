@@ -5,7 +5,7 @@ class Merlin extends ROChopperCraft
     placeable;
 
 #exec OBJ LOAD FILE=..\Animations\BDVehiclesB.ukx
-#exec obj load file=..\sounds\BDVehicles_A.uax
+#exec obj load file=..\Sounds\BDVehicles_A.uax
 #exec obj load file=..\Textures\kf_generic_t.utx
 
 
@@ -20,7 +20,7 @@ var()	float				HoverCheckDist;
 var() int    SpinSpeed;
 var() float  MaxPitchSpeed;
 
-var bool           Spindown;
+var bool           Spindown, bDown;
 var rotator        R;
 var rotator        J;
 
@@ -28,11 +28,12 @@ replication
 {
 	reliable if (bNetDirty && Role == ROLE_Authority)
 		BombDropCounter;
+	reliable if(Role != Role_Authority)
+		ServerAltFire;
 }
 
 simulated exec function ToggleIronSights()
 {
-
 	local PlayerController PC;
 
 	PC = PlayerController(Controller);
@@ -44,10 +45,19 @@ simulated exec function ToggleIronSights()
 	PC.ToggleBehindView();
 }
 
+function ServerAltFire()
+{
+	if(Role!=Role_Authority)
+		return;
+
+	bDown=!bDown;
+}
 
 function AltFire(optional float F)
 {
-
+	ServerAltFire();
+	log("Alt Fire");
+	//Velocity.Z -= 1000;
 }
 
 simulated event SVehicleUpdateParams()
@@ -57,16 +67,15 @@ simulated event SVehicleUpdateParams()
 
 	Super.SVehicleUpdateParams();
 
-	kp = KarmaParams(KParams);
+	/*kp = KarmaParams(KParams);
 
     for(i=0;i<kp.Repulsors.Length;i++)
 	{
         kp.Repulsors[i].Softness = HoverSoftness;
         kp.Repulsors[i].PenScale = HoverPenScale;
         kp.Repulsors[i].CheckDist = HoverCheckDist;
-    }
+    }*/
 }
-
 
 simulated function DrawHUD(Canvas Canvas)
 {}
@@ -88,7 +97,7 @@ simulated function PostNetBeginPlay()
     GetAxes(Rotation,RotX,RotY,RotZ);
 
 	// Spawn and assign 'repulsors' to hold bike off the ground
-	kp = KarmaParams(KParams);
+	/*kp = KarmaParams(KParams);
 	kp.Repulsors.Length = ThrusterOffsets.Length;
 
 	for(i=0;i<ThrusterOffsets.Length;i++)
@@ -98,7 +107,7 @@ simulated function PostNetBeginPlay()
     	rep.bHidden = true;
     	rep.bRepulseWater = True;
     	kp.Repulsors[i] = rep;
-    }
+    }*/
 
     J.Pitch=0;
     R.Yaw=0;
@@ -256,11 +265,11 @@ simulated event Destroyed()
 	local int i;
 
 	// Destroy repulsors
-	kp = KarmaParams(KParams);
+	/*kp = KarmaParams(KParams);
 	for(i=0;i<kp.Repulsors.Length;i++)
     	kp.Repulsors[i].Destroy();
 
-    kp.Repulsors.Length = 0;
+    kp.Repulsors.Length = 0;*/
 
 	Super.Destroyed();
 }
@@ -290,20 +299,20 @@ simulated event DrivingStatusChanged()
 	local KarmaParams kp;
 	local int i;
 
-	kp = KarmaParams(KParams);
+	//kp = KarmaParams(KParams);
 
     if (bDriving)
     {
         SpinDown=False;
         Enable('Tick');
-        for(i=0;i<kp.Repulsors.Length;i++)
-           kp.Repulsors[i].bEnableRepulsion=true;
+       // for(i=0;i<kp.Repulsors.Length;i++)
+         //  kp.Repulsors[i].bEnableRepulsion=true;
     }
     else
     {
         SpinDown=True;
-        for(i=0;i<kp.Repulsors.Length;i++)
-           kp.Repulsors[i].bEnableRepulsion=false;
+       // for(i=0;i<kp.Repulsors.Length;i++)
+        //   kp.Repulsors[i].bEnableRepulsion=false;
     }
 }
 
@@ -456,6 +465,16 @@ simulated function Tick(float DeltaTime)
     UpdateRotorSpeed(DeltaTime);
 
     Super.Tick(DeltaTime);
+	
+	if(Role==Role_Authority)
+	{
+		SetPhysics(PHYS_Falling);
+		if(bDown)
+		{
+			Rise=-1;
+		}
+	}
+	
 }
 
 simulated function spinRotor (float DeltaTime)
@@ -472,26 +491,6 @@ simulated function spinRotor (float DeltaTime)
    SetBoneRotation('back_blades', J, 0, 1);
 }
 
-/*
-simulated event TeamChanged()
-{
-	local int i;
-
-	Super(Vehicle).TeamChanged();
-
-	/*Skins = Default.Skins;
-	if (Team == 0 && RedSkin != None)
-		Skins[2] = RedSkin;
-	else if (Team == 1 && BlueSkin != None)
-		Skins[2] = BlueSkin;*/
-
-	if (Level.NetMode != NM_DedicatedServer && Team <= 2 && SpawnOverlay[0] != None && SpawnOverlay[1] != None)
-		SetOverlayMaterial(SpawnOverlay[Team], 1.5, True);
-
-	//for (i = 0; i < Weapons.Length; i++)
-		//Weapons[i].SetTeam(Team);
-}
-*/
 simulated function bool PointOfView()
 {
 	if (!bAllowViewChange)
@@ -504,9 +503,9 @@ defaultproperties
 {
      UprightStiffness=500.000000
      UprightDamping=300.000000
-     MaxThrustForce=100.000000
-     LongDamping=0.050000
-     MaxStrafeForce=50.000000
+	 MaxThrustForce=100.000000
+	 LongDamping=0.050000
+	 MaxStrafeForce=50.000000
      LatDamping=0.050000
      MaxRiseForce=30.000000
      UpDamping=0.050000
@@ -561,8 +560,8 @@ defaultproperties
      FlagBone="PlasmaGunAttachment"
      FlagRotation=(Yaw=32768)
      GroundSpeed=2000.000000
-     HealthMax=175.000000
-     Health=175
+     HealthMax=200.000000
+     Health=200
      Mesh=SkeletalMesh'BDVehiclesB.Merlinmesh'
      Skins(0)=Combiner'kf_generic_t.merlinhc3_cmb'
      Skins(1)=Texture'kf_generic_t.MerlinHC3InteriorDiffuse'
@@ -579,7 +578,7 @@ defaultproperties
          KAngularDamping=0.000000
          KStartEnabled=True
          bKNonSphericalInertia=True
-         KActorGravScale=0.000000
+         KActorGravScale=1.000000
          bHighDetailOnly=False
          bClientOnly=False
          bKDoubleTickRate=True
@@ -590,6 +589,5 @@ defaultproperties
          KFriction=0.500000
          KImpactThreshold=300.000000
      End Object
-     KParams=KarmaParamsRBFull'KF_Vehicles_BD.Merlin.KParams0'
-
+     KParams=KarmaParamsRBFull'KF_Vehicles_BD.Merlin.KParams0'	
 }
