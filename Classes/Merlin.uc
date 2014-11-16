@@ -60,7 +60,7 @@ function AltFire(optional float F)
 	//Velocity.Z -= 1000;
 }
 
-simulated event SVehicleUpdateParams()
+/*simulated event SVehicleUpdateParams()
 {
 	local KarmaParams kp;
 	local int i;
@@ -75,7 +75,7 @@ simulated event SVehicleUpdateParams()
         kp.Repulsors[i].PenScale = HoverPenScale;
         kp.Repulsors[i].CheckDist = HoverCheckDist;
     }*/
-}
+}*/
 
 simulated function DrawHUD(Canvas Canvas)
 {}
@@ -85,9 +85,9 @@ simulated function PostNetBeginPlay()
 //		LoopAnim('Idle',,,0);
 
 	local vector RotX, RotY, RotZ;
-	local KarmaParams kp;
-	local KRepulsor rep;
-	local int i;
+	//local KarmaParams kp;
+	//local KRepulsor rep;
+	//local int i;
 
 	BombDropCounter = 0;
 	bNetNotify = True;
@@ -259,7 +259,7 @@ function ChooseFireAt(Actor A)
 	}
 }
 
-simulated event Destroyed()
+/*simulated event Destroyed()
 {
 	local KarmaParams kp;
 	local int i;
@@ -272,7 +272,7 @@ simulated event Destroyed()
     kp.Repulsors.Length = 0;*/
 
 	Super.Destroyed();
-}
+}*/
 
 function ServerPlayHorn(int HornIndex); // This one has no horn sounds
 
@@ -296,8 +296,8 @@ exec function ToggleViewLimit()
 
 simulated event DrivingStatusChanged()
 {
-	local KarmaParams kp;
-	local int i;
+	//local KarmaParams kp;
+	//local int i;
 
 	//kp = KarmaParams(KParams);
 
@@ -310,6 +310,7 @@ simulated event DrivingStatusChanged()
     }
     else
     {
+		bDown=false;
         SpinDown=True;
        // for(i=0;i<kp.Repulsors.Length;i++)
         //   kp.Repulsors[i].bEnableRepulsion=false;
