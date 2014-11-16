@@ -521,7 +521,7 @@ exec function ToggleViewLimit()
 {
 }
 
-// Vehicles dont get telefragged.
+// Vehicles don't get telefragged.
 event EncroachedBy(Actor Other) {}
 
 // RanInto() called for encroaching actors which successfully moved the other actor out of the way
@@ -547,76 +547,53 @@ event RanInto(Actor Other)
 	}
 }
 
-
-
-
-
-
 // This will get called if we couldn't move a pawn out of the way.
 function bool EncroachingOn(Actor Other)
 {
-
 	local vector Momentum;
 	local float Speed;
-        local BDKFGlassMover Breakable;
+    local BDKFGlassMover Breakable;
 
-        if (other.isA('BDKFGlassMover') )
+    if (Other.isA('BDKFGlassMover') )
 	{
 		Breakable = BDKFGlassMover(Other);
 
 		Breakable.Health = 0;
 		Breakable.BreakWindow();
-        }
+    }
 	
-
 	if ( Other == None || Other == Instigator || Other.Role != ROLE_Authority || (!Other.bCollideActors && !Other.bBlockActors)
 	     || VSize(Velocity) < 10 )
 	//	return;
 
-
-
-    
-
 	if (Pawn(Other) != None || Vehicle(Other) == None || Other == Instigator || Other.Role != ROLE_Authority)
 		return false;
 
-	Speed = VSize(Velocity);
-	if (Speed <= MinRunOverSpeed)
+	if(Other != None)
 	{
+		Speed = VSize(Velocity);
+		if (Speed <= MinRunOverSpeed)
+		{	
+			Momentum = Velocity * 0.25 * Other.Mass;
 
-	   	
-		Momentum = Velocity * 0.25 * Other.Mass;
+			if (Controller != None && Controller.SameTeamAs(Pawn(Other).Controller))
+				Momentum += Speed * 0.25 * Other.Mass * Normal(Velocity cross vect(0,0,1));
+			if (RanOverSound != None)
+				PlaySound(RanOverSound,,TransientSoundVolume*2.5);
 
-		if (Controller != None && Controller.SameTeamAs(Pawn(Other).Controller))
-			Momentum += Speed * 0.25 * Other.Mass * Normal(Velocity cross vect(0,0,1));
-		if (RanOverSound != None)
-			PlaySound(RanOverSound,,TransientSoundVolume*2.5);
-
-	   		Other.TakeDamage(int(Speed * 0.075), Instigator, Other.Location, Momentum, RanOverDamageType);
-	}   	
+			Other.TakeDamage(int(Speed * 0.075), Instigator, Other.Location, Momentum, RanOverDamageType);
+		}   	
 		else
-    
-	   {	
-	   	if (Controller != None && Controller.SameTeamAs(Pawn(Other).Controller))
-			Momentum += Speed * 0.25 * Other.Mass * Normal(Velocity cross vect(0,0,1));
-		if (RanOverSound != None)
-			PlaySound(RanOverSound,,TransientSoundVolume*2.5);
+		{	
+			if (Controller != None && Controller.SameTeamAs(Pawn(Other).Controller))
+				Momentum += Speed * 0.25 * Other.Mass * Normal(Velocity cross vect(0,0,1));
+			if (RanOverSound != None)
+				PlaySound(RanOverSound,,TransientSoundVolume*2.5);
 
-		Other.TakeDamage(10000, Instigator, Other.Location, Velocity * Other.Mass, CrushedDamageType);
-	   }
-
-
-		
+			Other.TakeDamage(10000, Instigator, Other.Location, Velocity * Other.Mass, CrushedDamageType);
+		}
+	}
 }
-
-
-
-
-
-
-
-
-
 
 
 /*
@@ -667,7 +644,9 @@ function TakeDamage( int Damage, Pawn instigatedBy, Vector hitlocation,
 
 	if (DamageType != None && DamageType == class'DamTypeWelder')
 	{
-		Health = Health+1;
+		//if(Health<HealthMax)
+			Health = Health+1;
+		//return;
 	}
 
 	if (bRemoteControlled && Driver!=None)
@@ -759,7 +738,9 @@ function TakeDamage( int Damage, Pawn instigatedBy, Vector hitlocation,
 
 	if (DamageType != None && DamageType == class'DamTypeWelder')
 	{
-		Health = Health+1;
+		if(Health<HealthMax)
+			Health = Health+1;
+		//return;
 	}
 
 
@@ -1000,7 +981,7 @@ defaultproperties
      MPHPointer=TexRotator'BDVehicle_T.HUD.SpeedMeterPointer'
      MaxFuelPointerRotation=-23000
      MaxMPHPointerRotation=-44000
-     healthToGive=1.000000
+     healthToGive=0.000000
      bHasAltFire=True
      ImpactDamageSounds(0)=Sound'ProjectileSounds.Bullets.PTRD_deflect01'
      ImpactDamageSounds(1)=Sound'ProjectileSounds.Bullets.PTRD_deflect04'
