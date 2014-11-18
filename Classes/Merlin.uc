@@ -56,7 +56,7 @@ function ServerAltFire()
 function AltFire(optional float F)
 {
 	ServerAltFire();
-	log("Alt Fire");
+	//log("Alt Fire");
 	//Velocity.Z -= 1000;
 }
 
@@ -112,7 +112,7 @@ simulated function PostNetBeginPlay()
     J.Pitch=0;
     R.Yaw=0;
 
-bteamlocked=false;
+	bteamlocked=false;
 }
 
 
@@ -561,8 +561,8 @@ defaultproperties
      FlagBone="PlasmaGunAttachment"
      FlagRotation=(Yaw=32768)
      GroundSpeed=2000.000000
-     HealthMax=200.000000
-     Health=200
+     HealthMax=1000.000000
+     Health=1000
      Mesh=SkeletalMesh'BDVehiclesB.Merlinmesh'
      Skins(0)=Combiner'kf_generic_t.merlinhc3_cmb'
      Skins(1)=Texture'kf_generic_t.MerlinHC3InteriorDiffuse'

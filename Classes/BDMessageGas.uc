@@ -31,7 +31,7 @@ defaultproperties
 {
      KillString(0)="Vehicle is full, you're wasting gas..."
      KillString(1)="Refueling..."
-     KillString(2)="Out of petrol..."
+     KillString(2)="Out of petrol... buy fuel at the trader or find some"
      KillString(3)="You do not have enough cash to buy this vehicle!"
      KillString(4)="Overheated!"
      bIsConsoleMessage=False
